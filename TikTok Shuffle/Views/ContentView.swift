@@ -42,7 +42,10 @@ struct ContentView: View {
 		}
 		.onAppear {
 			loadState()
-			if !videos.isEmpty {
+				// Check if videos are empty before setting the navigation state
+			if videos.isEmpty {
+				navigationState = .upload
+			} else {
 				navigationState = .videoList
 			}
 		}
@@ -67,10 +70,6 @@ struct ContentView: View {
 		if let savedVideosData = UserDefaults.standard.data(forKey: videosKey),
 		   let decodedVideos = try? JSONDecoder().decode([Video].self, from: savedVideosData) {
 			videos = decodedVideos
-		}
-
-		if (videos.isEmpty) {
-			navigationState = .upload
 		}
 		currentIndex = UserDefaults.standard.integer(forKey: currentIndexKey)
 	}

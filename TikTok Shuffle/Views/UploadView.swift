@@ -29,7 +29,6 @@ struct UploadView: View {
 				.frame(maxWidth: .infinity, alignment: .center)
 
 			Spacer()
-
 			Button(action: {
 				isImporting = true
 			}) {
@@ -50,11 +49,14 @@ struct UploadView: View {
 			) { result in
 				switch result {
 					case .success(let url):
-						fileURL = url
-						if let url = fileURL {
-								// Read the file data and parse it
+							// Attempt to access the shared container
+						if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.rileytestut.AltStore.6FY4WG44") {
+							let fileURLInContainer = containerURL.appendingPathComponent(url.lastPathComponent)
+
+							print("Selected file path: \(fileURLInContainer.path)")
+
 							do {
-								let data = try Data(contentsOf: url)
+								let data = try Data(contentsOf: fileURLInContainer)
 								let jsonParser = JSONParser()
 								if let parsedVideos = jsonParser.parseJSON(from: data) {
 										// Save the videos in UserDefaults
@@ -69,12 +71,16 @@ struct UploadView: View {
 							} catch {
 								print("Failed to read file: \(error.localizedDescription)")
 							}
+						} else {
+							print("Failed to find shared container.")
 						}
+
 					case .failure(let error):
 						print("Failed to import file: \(error.localizedDescription)")
 				}
 			}
 			.padding()
+
 		}
 		.navigationTitle("Upload Data")
 		.navigationBarTitleDisplayMode(.inline)
